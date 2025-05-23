@@ -1,2 +1,9 @@
 .vscode/
 **/sketch.yaml
+
+# STM32CubeIDE
+.project
+.cproject
+.settings/
+mxproject.backup
+*.launch
