@@ -28,19 +28,28 @@ int main(void)
   USER_GPIO_Init();
   LCD_Init( );
   USER_ADC_Init( );
-  uint8_t click;
-  uint8_t data;
-  uint8_t col = 16;
+  uint8_t button_status = 0;
+
   uint16_t val = 0;
   LCD_Clear( );
   /* Repetitive block */
   for(;;){
+	  LCD_Clear( );
 	  val = USER_ADC_Read();
-	  data = USER_UART1_Receive_8bit(); // checar el valor que llega
+	  button_status = USER_UART1_Receive_8bit(); // checar el valor que llega
+	  if(GPIOA->IDR & (0x1UL << 9U)){
+		  button_status = 1;
+	  }
+	  else{
+		  button_status = 0;
+	  }
 
 	  LCD_Set_Cursor( 1, 1 );
-	  LCD_Put_Str( "Valor: " );
+	  LCD_Put_Str( "ADC: " );
 	  LCD_Put_Num( val );
+	  LCD_Set_Cursor( 2, 1 );
+	  LCD_Put_Str( "Button: " );
+	  LCD_Put_Num( button_status );
 //	  LCD_BarGraphic( 0, 64 );
 
 	  SysTick_Delay( 100 );
@@ -64,19 +73,17 @@ void USER_RCC_Init( void ){
 
 void USER_GPIO_Init(void){
   //SET 4 BIT LEDS AS OUTPUT
-  //PINA0 AS OUTPUT
-	GPIOA->BSRR   =	0x1UL << 21U; // Reset PA5 low to turn off LED
+  //PINA5 AS OUTPUT
+	  GPIOA->BSRR   =	0x1UL << 21U; // Reset PA5 low to turn off LED
 	  GPIOA->PUPDR  = GPIOA->PUPDR  & ~( 0x3UL << 10U ); // Clear pull-up/pull-down bits for PA5
 	  GPIOA->OTYPER = GPIOA->OTYPER & ~( 0x1UL <<  5U ); // Clear output type bit for PA5
 	  GPIOA->MODER  = GPIOA->MODER  & ~( 0x2UL << 10U ); // Set PA5 as output
 	  GPIOA->MODER  = GPIOA->MODER  |  ( 0x1UL << 10U ); // Set PA5 as output
-//  //PINA1 AS OUTPUT
-//  GPIOA->MODER = GPIOA->MODER & ~(0x2UL << 2U);
-//	GPIOA->MODER = GPIOA->MODER | (0x1UL << 2U);
-//	GPIOA->OTYPER = GPIOA->OTYPER & ~(0x1UL << 1U);
-//	GPIOA->PUPDR = GPIOA->PUPDR & ~(0x3UL << 2U);
-//	// Reset the led to be turn off
-//  GPIOA->ODR = GPIOA->ODR & ~(0x1UL<< 1U);
+	  //PINA9 AS INPUT PULL DOWN
+	  GPIOA->MODER &= ~(0x3UL << 18U);
+	  GPIOA->PUPDR &= ~(0x1UL << 18U);
+	  GPIOA->PUPDR |= (0x2UL << 18U);
+
 
 }
 
