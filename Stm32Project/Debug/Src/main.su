@@ -1,3 +1,0 @@
-../Src/main.c:20:5:main	16	static
-../Src/main.c:53:6:USER_RCC_Init	8	static
-../Src/main.c:66:6:USER_GPIO_Init	8	static

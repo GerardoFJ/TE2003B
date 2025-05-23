@@ -15,6 +15,7 @@
 #include "user_uart.h"
 #include "lcd.h"
 #include "systicklib.h"
+#include "adclib.h"
 
 /* Superloop structure */
 int main(void)
@@ -23,30 +24,28 @@ int main(void)
   USER_RCC_Init();
 //  USER_TIM3_Init();
   USER_SysTick_Init( );
-  //USER_UART1_Init();
+  USER_UART1_Init();
   USER_GPIO_Init();
   LCD_Init( );
+  USER_ADC_Init( );
   uint8_t click;
   uint8_t data;
   uint8_t col = 16;
+  uint16_t val = 0;
+  LCD_Clear( );
   /* Repetitive block */
   for(;;){
-//	  data = USER_UART1_Receive_8bit(); // checar el valor que llega
-	  LCD_Clear( );
+	  val = USER_ADC_Read();
+	  data = USER_UART1_Receive_8bit(); // checar el valor que llega
+
 	  LCD_Set_Cursor( 1, 1 );
-	  LCD_Put_Str( "TE" );
-	  LCD_Put_Num( 2003 );
-	  LCD_Put_Char( 'B' );
-	  LCD_Put_Str( " SoC" );
-	  LCD_Set_Cursor( 2, col-- );
-	  LCD_Put_Str( "Prueba de LCD ");
-	  LCD_BarGraphic( 0, 64 );
-	  SysTick_Delay( 200 );
+	  LCD_Put_Str( "Valor: " );
+	  LCD_Put_Num( val );
+//	  LCD_BarGraphic( 0, 64 );
+
+	  SysTick_Delay( 100 );
 	  GPIOA->ODR ^= (0x1UL<< 5U);
-	  if( col == 0 ){
-		  SysTick_Delay( 500 );
-	      col = 16;
-	  }
+
   }
 }
 

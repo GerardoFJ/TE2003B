@@ -1,5 +1,0 @@
-../Src/user_uart.c:8:6:USER_UART1_Init	8	static
-../Src/user_uart.c:54:13:USER_USART1_Send_8bit	16	static
-../Src/user_uart.c:59:6:USER_USART1_Transmit	24	static
-../Src/user_uart.c:68:5:_write	32	static
-../Src/user_uart.c:80:9:USER_UART1_Receive_8bit	8	static
