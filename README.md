@@ -1,2 +1,7 @@
-# TE2003B
-TE2003B class proyect
+# TE2003B John deere project
+Repository for team 2
+
+## Folder Structure
+Chip_project/
+├── Esp32_lib/   //Example of usage motor model on esp32
+└── README.md
