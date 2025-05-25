@@ -16,6 +16,11 @@
 #include "lcd.h"
 #include "systicklib.h"
 #include "adclib.h"
+#include <stdio.h>
+#include <string.h>
+
+char buffer_str[50];
+uint8_t ser;
 
 /* Superloop structure */
 int main(void)
@@ -28,16 +33,16 @@ int main(void)
   USER_GPIO_Init();
   LCD_Init( );
   USER_ADC_Init( );
+  USER_EXTI1_Init( );
   uint8_t button_status = 0;
-
-  uint16_t val = 0;
+  uint16_t val;
   LCD_Clear( );
   /* Repetitive block */
   for(;;){
-	  LCD_Clear( );
+	  UPDATE_SERIAL_VALUES();
+//	  LCD_Clear( );
 	  val = USER_ADC_Read();
-	  button_status = USER_UART1_Receive_8bit(); // checar el valor que llega
-	  if(GPIOA->IDR & (0x1UL << 9U)){
+	  if(GPIOA->IDR & (0x1UL << 7U)){
 		  button_status = 1;
 	  }
 	  else{
@@ -45,17 +50,33 @@ int main(void)
 	  }
 
 	  LCD_Set_Cursor( 1, 1 );
-	  LCD_Put_Str( "ADC: " );
-	  LCD_Put_Num( val );
-	  LCD_Set_Cursor( 2, 1 );
-	  LCD_Put_Str( "Button: " );
-	  LCD_Put_Num( button_status );
-//	  LCD_BarGraphic( 0, 64 );
-
+	  LCD_Put_Str( "Vel: " );
+	  LCD_Set_Cursor( 1, 6 );
+	  LCD_Put_Str( "    " );
+	  LCD_Set_Cursor( 1, 6 );
+      LCD_Put_Str( buffer_str );
+//	  LCD_Set_Cursor( 2, 1 );
+//	  LCD_Put_Str( "Button: " );
+//	  LCD_Set_Cursor( 2, 9 );
+//	  LCD_Put_Str( " " );
+//	  LCD_Set_Cursor( 2, 9 );
+//	  LCD_Put_Num( button_status );
+	  printf("{adc: %u, button: %u}\n", val, button_status);
 	  SysTick_Delay( 100 );
 	  GPIOA->ODR ^= (0x1UL<< 5U);
 
   }
+}
+void UPDATE_SERIAL_VALUES(){
+	ser = USER_UART1_Receive_8bit();
+	if(ser == 0x56){
+		memset(buffer_str, 0, sizeof(buffer_str));
+	}
+	else{
+		char num_str[10];
+		sprintf(num_str, "%d", ser);
+		strcat(buffer_str,num_str);
+	}
 }
 
 void USER_RCC_Init( void ){
@@ -80,9 +101,9 @@ void USER_GPIO_Init(void){
 	  GPIOA->MODER  = GPIOA->MODER  & ~( 0x2UL << 10U ); // Set PA5 as output
 	  GPIOA->MODER  = GPIOA->MODER  |  ( 0x1UL << 10U ); // Set PA5 as output
 	  //PINA9 AS INPUT PULL DOWN
-	  GPIOA->MODER &= ~(0x3UL << 18U);
-	  GPIOA->PUPDR &= ~(0x1UL << 18U);
-	  GPIOA->PUPDR |= (0x2UL << 18U);
+	  GPIOA->MODER &= ~(0x3UL << 14U);
+	  GPIOA->PUPDR &= ~(0x1UL << 14U);
+	  GPIOA->PUPDR |= (0x2UL << 14U);
 
 
 }

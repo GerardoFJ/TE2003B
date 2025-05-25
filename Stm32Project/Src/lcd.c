@@ -112,14 +112,14 @@ void LCD_Init(void){
 	while( LCD_Busy( ) );
 	/* 'Function Set' (I=1, N and F as required)	*/
 	LCD_Write_Cmd( 0x28U );
-	/* 'Display ON/OFF Control' (D=0, C=0, B=0)	*/
-	LCD_Write_Cmd( 0x08U );
+	/* 'Display ON/OFF Control' (D=1, C=0, B=0)	*/
+	LCD_Write_Cmd( 0x0CU );
 	/* 'Clear Display'	*/
 	LCD_Write_Cmd( 0x01U );//
 	/* 'Entry Mode Set' (I/D and S as required)	*/
 	LCD_Write_Cmd( 0x06U );
 	/* Initialization Ends	*/
-	LCD_Write_Cmd( 0x0FU );
+//	LCD_Write_Cmd( 0x0FU );
 
 	//Cargamos el caracter definido por el usuario en la CGRAM
 	LCD_Write_Cmd( 0x40 );
