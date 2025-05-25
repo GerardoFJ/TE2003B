@@ -18,29 +18,62 @@
 #include "adclib.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>     /* strtod */
 
-char buffer_str[50];
-uint8_t ser;
+#define BUFFER_SIZE 50
 
+char buffer_str[10];
+char buffer_vel[10];
+//char test_buffer[] = "112.561";
+float velocity = 0.0;
+int index_k = 0;
+
+uint8_t button_status = 0;
+  uint16_t val;
+
+void USART1_IRQHandler( void ) {
+	if((USART1->ISR & (0x1UL << 5U))){ // wait until a data is received (ISR register)
+		char received =  USART1->RDR;
+		if(received == 'V'){
+			velocity = atof(buffer_str);
+			memset(buffer_str, 0, sizeof(buffer_str));
+			index_k = 0;
+			}
+			else{
+				if (index_k < BUFFER_SIZE - 1) {
+				            buffer_str[index_k++] = received;
+				        }
+			}
+}
+}
+
+void TIM3_IRQHandler( void ) {
+	if(TIM3->SR & (0x1UL<<0U)){
+		LCD_Set_Cursor( 1, 1 );
+		snprintf(buffer_vel, sizeof(buffer_vel), "%f", velocity);
+		LCD_Put_Str( buffer_vel );
+		printf("{adc: %u, button: %u}\n", val, button_status);
+//		printf("test %.4f \r\n",velocity);
+		TIM3->SR &= ~(0x1UL << 0U);
+	}
+}
 /* Superloop structure */
 int main(void)
 {
 	/* Declarations and Initializations */
   USER_RCC_Init();
-//  USER_TIM3_Init();
+  USER_TIM3_Init();
   USER_SysTick_Init( );
   USER_UART1_Init();
   USER_GPIO_Init();
   LCD_Init( );
   USER_ADC_Init( );
   USER_EXTI1_Init( );
-  uint8_t button_status = 0;
-  uint16_t val;
+
   LCD_Clear( );
+
   /* Repetitive block */
   for(;;){
-	  UPDATE_SERIAL_VALUES();
-//	  LCD_Clear( );
 	  val = USER_ADC_Read();
 	  if(GPIOA->IDR & (0x1UL << 7U)){
 		  button_status = 1;
@@ -49,34 +82,22 @@ int main(void)
 		  button_status = 0;
 	  }
 
-	  LCD_Set_Cursor( 1, 1 );
-	  LCD_Put_Str( "Vel: " );
-	  LCD_Set_Cursor( 1, 6 );
-	  LCD_Put_Str( "    " );
-	  LCD_Set_Cursor( 1, 6 );
-      LCD_Put_Str( buffer_str );
-//	  LCD_Set_Cursor( 2, 1 );
-//	  LCD_Put_Str( "Button: " );
-//	  LCD_Set_Cursor( 2, 9 );
-//	  LCD_Put_Str( " " );
-//	  LCD_Set_Cursor( 2, 9 );
-//	  LCD_Put_Num( button_status );
-	  printf("{adc: %u, button: %u}\n", val, button_status);
-	  SysTick_Delay( 100 );
-	  GPIOA->ODR ^= (0x1UL<< 5U);
+//	  LCD_Set_Cursor( 1, 1 );
+//	  LCD_Put_Str( "Vel: " );
+//	  LCD_Set_Cursor( 1, 6 );
+//	  LCD_Put_Str( "    " );
+//	  LCD_Set_Cursor( 1, 6 );
+//      LCD_Put_Str( buffer_str );
+////	  LCD_Set_Cursor( 2, 1 );
+////	  LCD_Put_Str( "Button: " );
+////	  LCD_Set_Cursor( 2, 9 );
+////	  LCD_Put_Str( " " );
+////	  LCD_Set_Cursor( 2, 9 );
+////	  LCD_Put_Num( button_status );
 
+//	  SysTick_Delay( 100 );
+//	  GPIOA->ODR ^= (0x1UL<< 5U);
   }
-}
-void UPDATE_SERIAL_VALUES(){
-	ser = USER_UART1_Receive_8bit();
-	if(ser == 0x56){
-		memset(buffer_str, 0, sizeof(buffer_str));
-	}
-	else{
-		char num_str[10];
-		sprintf(num_str, "%d", ser);
-		strcat(buffer_str,num_str);
-	}
 }
 
 void USER_RCC_Init( void ){

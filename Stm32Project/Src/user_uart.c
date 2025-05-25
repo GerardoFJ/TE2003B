@@ -46,6 +46,8 @@ void USER_UART1_Init( void ){ //uart initialization function
 	/* STEP 7 Set the RE bit in USART_CR1 to receive */
 	USART1->CR1 = USART1->CR1 | (0x1UL << 2U);
 
+	USART1->CR1 = USART1->CR1 | (0x1UL << 5U);
+
 
 }
 

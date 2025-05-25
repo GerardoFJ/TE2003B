@@ -10,6 +10,14 @@ void USER_TIM3_Init( void ){
 					&  ~( 0x3UL <<  5U ) //		Selects edge-aligned mode
 					&  ~( 0x1UL <<  4U ) //		Counter used as upcounter
 					&  ~( 0x1UL <<  1U );//		Update Event (UEV) enabled
+	TIM3->DIER |= (0x1UL << 0U );
+	TIM3->PSC = 732;
+		TIM3->ARR = 65483;
+		/* STEP 4. Clear the Timer Update Interrupt Flag */
+		TIM3->SR &= ~( 0x1UL << 0U );
+		/* STEP 5. Enable the Timer to start counting */
+		TIM3->CR1 |= ( 0x1UL << 0U );
+
 }
 
 void USER_TIM3_Delay( uint16_t prescaler, uint16_t maxCount ){
