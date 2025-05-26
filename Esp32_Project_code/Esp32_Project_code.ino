@@ -38,13 +38,11 @@ void loop()
   else{
     EngTrModel_U.BrakeTorque = 0.0;
   }
-  // EngTrModel_step( );
-  // Serial.print(EngTrModel_Y.VehicleSpeed);
-  // Serial.print("V");
+  EngTrModel_step( );
+  Serial.print(EngTrModel_Y.VehicleSpeed);
+  Serial.print("V");
   // delay(200)
   delay(500);
-  Serial.write("1.244V");
-
   // Serial.print(EngTrModel_Y.EngineSpeed);
   // Serial.print("S");
   // Serial.print(EngTrModel_Y.Gear);
