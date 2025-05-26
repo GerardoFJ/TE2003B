@@ -41,11 +41,10 @@ void loop()
   EngTrModel_step( );
   Serial.print(EngTrModel_Y.VehicleSpeed);
   Serial.print("V");
-  // delay(200)
-  delay(500);
-  // Serial.print(EngTrModel_Y.EngineSpeed);
-  // Serial.print("S");
-  // Serial.print(EngTrModel_Y.Gear);
-  // Serial.print("G");
-  //delay(100);
+  Serial.print(EngTrModel_Y.EngineSpeed);
+  Serial.print("S");
+  Serial.print(EngTrModel_Y.Gear);
+  Serial.print("E");
+
+  delay(200);
 }
