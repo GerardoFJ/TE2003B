@@ -10,7 +10,7 @@ void USER_EXTI1_Init( void ){
 
   NVIC->IPR[6]  &= ~( 0x00UL <<  3U );
 
-  NVIC->ISER    |=  (  0x1UL <<  16U );
+//  NVIC->ISER    |=  (  0x1UL <<  16U );
   NVIC->ISER    |=  (  0x1UL <<  27U );
 
 }

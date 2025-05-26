@@ -20,7 +20,7 @@
 #include <string.h>
 #include <stdlib.h>     /* strtod */
 
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE 10
 
 char buffer_str[10];
 char buffer_vel[10];
@@ -42,27 +42,37 @@ void USART1_IRQHandler( void ) {
 			else{
 				if (index_k < BUFFER_SIZE - 1) {
 				            buffer_str[index_k++] = received;
+				        }else{
+				        	memset(buffer_str, 0, sizeof(buffer_str));
+				        				index_k = 0;
 				        }
 			}
 }
 }
 
-void TIM3_IRQHandler( void ) {
-	if(TIM3->SR & (0x1UL<<0U)){
-		LCD_Set_Cursor( 1, 1 );
-		snprintf(buffer_vel, sizeof(buffer_vel), "%f", velocity);
-		LCD_Put_Str( buffer_vel );
-		printf("{adc: %u, button: %u}\n", val, button_status);
-//		printf("test %.4f \r\n",velocity);
-		TIM3->SR &= ~(0x1UL << 0U);
-	}
-}
+//void TIM3_IRQHandler( void ) {
+//	if(TIM3->SR & (0x1UL<<0U)){
+//		val = USER_ADC_Read();
+//			  if(GPIOA->IDR & (0x1UL << 7U)){
+//				  button_status = 1;
+//			  }
+//			  else{
+//				  button_status = 0;
+//			  }
+//		LCD_Set_Cursor( 1, 1 );
+//		snprintf(buffer_vel, sizeof(buffer_vel), "%f", velocity);
+//		LCD_Put_Str( buffer_vel );
+//		printf("{adc: %u, button: %u}\n", val, button_status);
+////		printf("test %.4f \r\n",velocity);
+//		TIM3->SR &= ~(0x1UL << 0U);
+//	}
+//}
 /* Superloop structure */
 int main(void)
 {
 	/* Declarations and Initializations */
   USER_RCC_Init();
-  USER_TIM3_Init();
+//  USER_TIM3_Init();
   USER_SysTick_Init( );
   USER_UART1_Init();
   USER_GPIO_Init();
@@ -75,12 +85,17 @@ int main(void)
   /* Repetitive block */
   for(;;){
 	  val = USER_ADC_Read();
-	  if(GPIOA->IDR & (0x1UL << 7U)){
-		  button_status = 1;
-	  }
-	  else{
-		  button_status = 0;
-	  }
+	  			  if(GPIOA->IDR & (0x1UL << 7U)){
+	  				  button_status = 1;
+	  			  }
+	  			  else{
+	  				  button_status = 0;
+	  			  }
+	  		LCD_Set_Cursor( 1, 1 );
+	  		snprintf(buffer_vel, sizeof(buffer_vel), "%f", velocity);
+	  		LCD_Put_Str( buffer_vel );
+	  		SysTick_Delay( 100 );
+	  		printf("{adc: %u, button: %u}\n", val, button_status);
 
 //	  LCD_Set_Cursor( 1, 1 );
 //	  LCD_Put_Str( "Vel: " );
