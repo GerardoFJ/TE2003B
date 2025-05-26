@@ -2,8 +2,6 @@
 #include "main.h"
 #include "user_uart.h"
 
-static void USER_USART1_Send_8bit( uint8_t Data );
-uint8_t USER_UART1_Receive_8bit( void );
 
 void USER_UART1_Init( void ){ //uart initialization function
   /* STEP 0. Enable the clock peripheral for the USART1 */
@@ -51,19 +49,6 @@ void USER_UART1_Init( void ){ //uart initialization function
 
 }
 
-//BASIC FUNCTION FOR TRANSMITION
-//////////////////////////////////////////////////////////////////////////////////////////
-static void USER_USART1_Send_8bit( uint8_t Data ){
-	while(!( USART1->ISR & ( 0x1UL <<  7U)));//	wait until next data can be written
-	USART1->TDR = Data;// Data to send
-}
-
-void USER_USART1_Transmit( uint8_t *pData, uint16_t size ){
-	for( int i = 0; i < size; i++ ){
-		USER_USART1_Send_8bit( *pData++ );
-	}
-}
-/////////////////////////////////////////////////////////////////////////////////////////
 
 //PRINTF FUNCTION EDITED
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -77,15 +62,4 @@ int _write(int file, char *ptr, int len){
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
-//BASIC UART RECEIVER 8BIT
-////////////////////////////////////////////////////////////////////////////////////////////////
-uint8_t USER_UART1_Receive_8bit( void ){
-     	if((USART1->ISR & (0x1UL << 5U))){ // wait until a data is received (ISR register)
-     		return (uint8_t)USART1->RDR;  // return data (RDR register)
-     	}
-     	else{
-     		return '0'; // if ISR register is not active return a 0
-     	}
-}
-//////////////////////////////////////////////////////////////////////////////////////////
 

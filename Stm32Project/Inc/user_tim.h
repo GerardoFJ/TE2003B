@@ -33,7 +33,8 @@ typedef struct
 #define TIM3_BASE	0x40000400UL//	TIM3 base address
 #define TIM3    	(( TIM_TypeDef * )TIM3_BASE )
 
-void USER_TIM3_Init( void );
-void USER_TIM3_Delay( uint16_t prescaler, uint16_t maxCount );
+void USER_TIM3_PWM_Init( void );
+void update_cycle(uint8_t duty);
+uint16_t USER_Duty_Cycle( uint8_t duty );
 
 #endif /* USER_TIM_H_ */

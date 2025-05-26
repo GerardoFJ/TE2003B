@@ -1,5 +1,5 @@
 /* ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	This code is for testing timers
+	Chips project code baremetal stm32
    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
 
 /*
@@ -27,9 +27,7 @@ char buffer_vel[8];
 char buffer_rpm[8];
 char buffer_gear[8];
 // char test_buffer[] = "112.561";
-float velocity = 0.0;
-float rpm = 0.0;
-float gear = 0.0;
+int velocity = 0;
 int index_k = 0;
 
 uint8_t button_status = 0;
@@ -42,7 +40,7 @@ void USART1_IRQHandler(void)
 		char received = USART1->RDR;
 		if (received == 'V')
 		{
-			velocity = atof(buffer_str);
+			velocity = atoi(buffer_str);
 			memcpy(buffer_vel, buffer_str, sizeof(buffer_str));
 			memset(buffer_str, 0, sizeof(buffer_str));
 			index_k = 0;
@@ -74,29 +72,12 @@ void USART1_IRQHandler(void)
 	}
 }
 
-// void TIM3_IRQHandler( void ) {
-//	if(TIM3->SR & (0x1UL<<0U)){
-//		val = USER_ADC_Read();
-//			  if(GPIOA->IDR & (0x1UL << 7U)){
-//				  button_status = 1;
-//			  }
-//			  else{
-//				  button_status = 0;
-//			  }
-//		LCD_Set_Cursor( 1, 1 );
-//		snprintf(buffer_vel, sizeof(buffer_vel), "%f", velocity);
-//		LCD_Put_Str( buffer_vel );
-//		printf("{adc: %u, button: %u}\n", val, button_status);
-////		printf("test %.4f \r\n",velocity);
-//		TIM3->SR &= ~(0x1UL << 0U);
-//	}
-//}
 /* Superloop structure */
 int main(void)
 {
 	/* Declarations and Initializations */
 	USER_RCC_Init();
-	//  USER_TIM3_Init();
+	USER_TIM3_PWM_Init( );
 	USER_SysTick_Init();
 	USER_UART1_Init();
 	USER_GPIO_Init();
@@ -118,6 +99,9 @@ int main(void)
 		{
 			button_status = 0;
 		}
+		if(velocity > 100){
+					velocity = 100;
+				}
 		LCD_Set_Cursor(1, 1);
 		LCD_Put_Str("Vel:       G:  ");
 		LCD_Set_Cursor(1, 5);
@@ -128,24 +112,9 @@ int main(void)
 		LCD_Put_Str("RPM:       ");
 		LCD_Set_Cursor(2, 5);
 		LCD_Put_Str(buffer_rpm);
-		SysTick_Delay(100);
+		update_cycle(velocity);
 		printf("{adc: %u, button: %u}\n", val, button_status);
-
-		//	  LCD_Set_Cursor( 1, 1 );
-		//	  LCD_Put_Str( "Vel: " );
-		//	  LCD_Set_Cursor( 1, 6 );
-		//	  LCD_Put_Str( "    " );
-		//	  LCD_Set_Cursor( 1, 6 );
-		//      LCD_Put_Str( buffer_str );
-		////	  LCD_Set_Cursor( 2, 1 );
-		////	  LCD_Put_Str( "Button: " );
-		////	  LCD_Set_Cursor( 2, 9 );
-		////	  LCD_Put_Str( " " );
-		////	  LCD_Set_Cursor( 2, 9 );
-		////	  LCD_Put_Num( button_status );
-
-		//	  SysTick_Delay( 100 );
-		//	  GPIOA->ODR ^= (0x1UL<< 5U);
+		SysTick_Delay(100);
 	}
 }
 
