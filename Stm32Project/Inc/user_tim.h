@@ -36,5 +36,8 @@ typedef struct
 void USER_TIM3_PWM_Init( void );
 void update_cycle(uint8_t duty);
 uint16_t USER_Duty_Cycle( uint8_t duty );
-
+void USER_TIM17_Init(void);
+uint32_t TIM17_Get_Micros(void);   
+void TIM17_Reset_Counter(void);   
+float TIM17_Calculate_Time(uint32_t start, uint32_t end);
 #endif /* USER_TIM_H_ */
