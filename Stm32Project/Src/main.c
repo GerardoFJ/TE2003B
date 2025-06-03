@@ -99,6 +99,17 @@ int main(void)
 
 		while ((tim16_tick - start_time) < CYCLE_TIME);
 	}
+
+	uint32_t cycle_start = TIM17_Get_Micros();
+        
+        // maso asi la logica para medir el timing por task
+	/*
+        TIM17_Reset_Counter();
+        uint32_t task1_start = TIM17_Get_Micros();
+        Task_Input();
+        uint32_t task1_time = TIM17_Get_Micros() - task1_start;
+        printf("Task_Input: %.2f ms\n", task1_time / 1000.0f);
+	*/
 }
 
 void USER_RCC_Init(void)
