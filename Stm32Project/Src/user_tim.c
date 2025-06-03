@@ -77,3 +77,34 @@ void USER_TIM3_Delay( uint16_t prescaler, uint16_t maxCount ){
 	/* STEP 7. Disable the Timer to stop counting */
 	TIM3->CR1 &= ~( 0x1UL << 0U );
 }
+
+void USER_TIM14_Delay(uint16_t ms) {
+	TIM14->CR1 &= ~(1UL << 0);
+
+	TIM14->PSC = 4799;
+	TIM14->ARR = ms * 100;
+	TIM14->EGR |= (1UL << 0);
+
+	TIM14->SR &= ~(1UL << 0);
+
+	TIM14->CR1 |= (1UL << 0);
+
+	while (!(TIM14->SR & (1UL << 0)));
+
+	TIM14->CR1 &= ~(1UL << 0);
+	TIM14->SR &= ~(1UL << 0);
+}
+
+//Función para inicializar el Timer, se manda a llamar antes del ciclo infinito
+void USER_TIM17_Init_Timer( void ){
+    RCC->APBENR2 |=   ( 0x1UL << 18U );//  TIM17 clock source enabled
+    TIM17->CR1   &=  ~( 0x1UL <<  7U )//   auto-reload reg is not buffered
+                 &   ~( 0x1UL <<  1U );//  update event (UEV) enabled
+    TIM17->PSC   =    1499U;//             time range: 32us to 2s
+    TIM17->ARR   =    65535U;//            maximum count
+    TIM17->SR   &=  ~( 0x1UL <<  0U );//   clear TIM overflow-event flag
+    TIM17->CR1  |=   ( 0x1UL <<  0U );//   timer enabled
+}
+
+static uint32_t task_timings[5] = {0};
+
