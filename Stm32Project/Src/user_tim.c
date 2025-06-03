@@ -106,5 +106,26 @@ void USER_TIM17_Init_Timer( void ){
     TIM17->CR1  |=   ( 0x1UL <<  0U );//   timer enabled
 }
 
-static uint32_t task_timings[5] = {0};
+// TIM17 Initialization (1μs resolution @ 48MHz clock)
+void USER_TIM17_Init(void) {
+    RCC->APBENR2 |= (1 << 18);     // Enable TIM17 clock
+    TIM17->PSC = 47;               // 48MHz / (47+1) = 1MHz (1μs per tick)
+    TIM17->ARR = 0xFFFF;           // Max count (65535μs = 65.5ms per overflow)
+    TIM17->CR1 |= (1 << 0);        // Enable timer (no interrupts)
+}
+
+// Get current time in microseconds
+uint32_t TIM17_Get_Micros(void) {
+    return TIM17->CNT;
+}
+
+// Reset TIM17 counter
+void TIM17_Reset_Counter(void) {
+    TIM17->CNT = 0;
+}
+
+// Convert ticks → milliseconds
+float TIM17_Calculate_Time(uint32_t start, uint32_t end) {
+    return (end - start) / 1000.0f; 
+}
 
