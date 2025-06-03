@@ -21,6 +21,7 @@
 #include <stdlib.h> /* strtod */
 
 #define BUFFER_SIZE 8
+#define CYCLE_TIME 16
 
 char buffer_str[8];
 char buffer_vel[8];
@@ -30,8 +31,16 @@ char buffer_gear[8];
 int velocity = 0;
 int index_k = 0;
 
+volatile uint32_t tim16_tick = 0;
 uint8_t button_status = 0;
 uint16_t val;
+
+void System_Init(void);
+void Task_Input(void);
+void Task_Control(void);
+void Task_PWM_Update(void);
+void Task_Display(void);
+void Task_Transmit(void);
 
 void USART1_IRQHandler(void)
 {
@@ -76,45 +85,19 @@ void USART1_IRQHandler(void)
 int main(void)
 {
 	/* Declarations and Initializations */
-	USER_RCC_Init();
-	USER_TIM3_PWM_Init( );
-	USER_SysTick_Init();
-	USER_UART1_Init();
-	USER_GPIO_Init();
-	LCD_Init();
-	USER_ADC_Init();
-	USER_EXTI1_Init();
-
-	LCD_Clear();
+	System_Init();
 
 	/* Repetitive block */
 	for (;;)
 	{
-		val = USER_ADC_Read();
-		if (GPIOA->IDR & (0x1UL << 7U))
-		{
-			button_status = 1;
-		}
-		else
-		{
-			button_status = 0;
-		}
-		if(velocity > 100){
-					velocity = 100;
-				}
-		LCD_Set_Cursor(1, 1);
-		LCD_Put_Str("Vel:       G:  ");
-		LCD_Set_Cursor(1, 5);
-		LCD_Put_Str(buffer_vel);
-		LCD_Set_Cursor(1, 14);
-		LCD_Put_Str(buffer_gear);
-		LCD_Set_Cursor(2, 1);
-		LCD_Put_Str("RPM:       ");
-		LCD_Set_Cursor(2, 5);
-		LCD_Put_Str(buffer_rpm);
-		update_cycle(velocity);
-		printf("{adc: %u, button: %u}\n", val, button_status);
-		SysTick_Delay(100);
+		uint32_t start_time = tim16_tick;
+		Task_Input();       // 0–2 ms
+		Task_Control();     // 2–4 ms
+		Task_PWM_Update();  // 4–6 ms
+		Task_Display();     // 6–11 ms
+		Task_Transmit();    // 11–16 ms
+
+		while ((tim16_tick - start_time) < CYCLE_TIME);
 	}
 }
 
@@ -148,3 +131,60 @@ void USER_GPIO_Init(void)
 	GPIOA->PUPDR &= ~(0x1UL << 14U);
 	GPIOA->PUPDR |= (0x2UL << 14U);
 }
+
+// Task functions
+void System_Init(void)
+{
+	USER_RCC_Init();
+	USER_TIM3_PWM_Init();
+	USER_SysTick_Init();
+	//USER_TIM16_Init();
+	USER_UART1_Init();
+	USER_GPIO_Init();
+	LCD_Init();
+	USER_ADC_Init();
+	USER_EXTI1_Init();
+	LCD_Clear();
+}
+
+// Task 1: Lectura de entradas
+void Task_Input(void)
+{
+	adc_val = USER_ADC_Read();
+	button_status = (GPIOA->IDR & (0x1UL << 7U)) ? 1 : 0;
+}
+
+// Task 2: Logica de control
+void Task_Control(void)
+{
+	if (velocity > 100) velocity = 100;
+}
+
+// Task 3: Actualizacion de PWM
+void Task_PWM_Update(void)
+{
+	update_cycle(velocity);
+}
+
+// Task 4: Actualizacion de pantalla
+void Task_Display(void)
+{
+	LCD_Set_Cursor(1, 1);
+	LCD_Put_Str("Vel:       G:  ");
+	LCD_Set_Cursor(1, 5);
+	LCD_Put_Str(buffer_vel);
+	LCD_Set_Cursor(1, 14);
+	LCD_Put_Str(buffer_gear);
+	LCD_Set_Cursor(2, 1);
+	LCD_Put_Str("RPM:       ");
+	LCD_Set_Cursor(2, 5);
+	LCD_Put_Str(buffer_rpm);
+}
+
+// Task 5: Transmision de datos
+void Task_Transmit(void)
+{
+	printf("{adc: %u, button: %u}\n", adc_val, button_status);
+}
+
+
