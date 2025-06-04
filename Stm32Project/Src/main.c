@@ -76,46 +76,73 @@ void USART1_IRQHandler(void)
 int main(void)
 {
 	/* Declarations and Initializations */
-	USER_RCC_Init();
+	System_init();
 	USER_TIM3_PWM_Init( );
-	USER_SysTick_Init();
-	USER_UART1_Init();
-	USER_GPIO_Init();
-	LCD_Init();
+	USART_initialization();
 	USER_ADC_Init();
-	USER_EXTI1_Init();
-
-	LCD_Clear();
+	Lcd_initialization();
 
 	/* Repetitive block */
 	for (;;)
 	{
-		val = USER_ADC_Read();
-		if (GPIOA->IDR & (0x1UL << 7U))
-		{
-			button_status = 1;
-		}
-		else
-		{
-			button_status = 0;
-		}
-		if(velocity > 100){
-					velocity = 100;
-				}
-		LCD_Set_Cursor(1, 1);
-		LCD_Put_Str("Vel:       G:  ");
-		LCD_Set_Cursor(1, 5);
-		LCD_Put_Str(buffer_vel);
-		LCD_Set_Cursor(1, 14);
-		LCD_Put_Str(buffer_gear);
-		LCD_Set_Cursor(2, 1);
-		LCD_Put_Str("RPM:       ");
-		LCD_Set_Cursor(2, 5);
-		LCD_Put_Str(buffer_rpm);
-		update_cycle(velocity);
-		printf("{adc: %u, button: %u}\n", val, button_status);
-		SysTick_Delay(100);
+		Read_adc();
+		Send_data();
+		Show_data();
+		Set_pwm();
 	}
+}
+
+
+void System_init(){
+	USER_RCC_Init();
+	USER_GPIO_Init();
+}
+
+void USART_initialization(){
+	USER_UART1_Init();
+	USER_EXTI1_Init();
+}
+
+void Lcd_initialization(){
+	LCD_Init();
+	LCD_Clear();
+}
+
+void Read_adc(){
+	val = USER_ADC_Read();
+			if (GPIOA->IDR & (0x1UL << 7U))
+			{
+				button_status = 1;
+			}
+			else
+			{
+				button_status = 0;
+			}
+}
+
+void Show_data(){
+			LCD_Set_Cursor(1, 1);
+			LCD_Put_Str("Vel:       G:  ");
+			LCD_Set_Cursor(1, 5);
+			LCD_Put_Str(buffer_vel);
+			LCD_Set_Cursor(1, 14);
+			LCD_Put_Str(buffer_gear);
+			LCD_Set_Cursor(2, 1);
+			LCD_Put_Str("RPM:       ");
+			LCD_Set_Cursor(2, 5);
+			LCD_Put_Str(buffer_rpm);
+
+}
+
+void Set_pwm(){
+	if(velocity > 100){
+			velocity = 100;
+	}
+	update_cycle(velocity);
+}
+
+void Send_data(){
+	printf("{adc: %u, button: %u}\n", val, button_status);
 }
 
 void USER_RCC_Init(void)
