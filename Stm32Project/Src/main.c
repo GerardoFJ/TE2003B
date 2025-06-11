@@ -72,24 +72,65 @@ void USART1_IRQHandler(void)
 	}
 }
 
+
+
 /* Superloop structure */
 int main(void)
 {
 	/* Declarations and Initializations */
 	System_init();
 	USER_TIM3_PWM_Init( );
-	USART_initialization();
-	USER_ADC_Init();
-	Lcd_initialization();
+//	USART_initialization();
+//	USER_ADC_Init();
+//	Lcd_initialization();
+//	update_cycle(25);
 
 	/* Repetitive block */
 	for (;;)
 	{
-		Read_adc();
-		Send_data();
-		Show_data();
-		Set_pwm();
+//		Read_adc();
+//		Send_data();
+//		Show_data();
+
 	}
+}
+
+void Manage_msg(){
+	if ((USART1->ISR & (0x1UL << 5U)))
+		{ // wait until a data is received (ISR register)
+			char received = USART1->RDR;
+			if (received == 'V')
+			{
+				velocity = atoi(buffer_str);
+				memcpy(buffer_vel, buffer_str, sizeof(buffer_str));
+				memset(buffer_str, 0, sizeof(buffer_str));
+				index_k = 0;
+			}
+			else if (received == 'S')
+					{
+						memcpy(buffer_rpm, buffer_str, sizeof(buffer_str));
+						memset(buffer_str, 0, sizeof(buffer_str));
+						index_k = 0;
+					}
+			else if (received == 'E')
+							{
+								memcpy(buffer_gear, buffer_str, sizeof(buffer_str));
+								memset(buffer_str, 0, sizeof(buffer_str));
+								index_k = 0;
+							}
+			else
+			{
+				if (index_k < BUFFER_SIZE - 1)
+				{
+					buffer_str[index_k++] = received;
+				}
+				else
+				{
+					memset(buffer_str, 0, sizeof(buffer_str));
+					index_k = 0;
+				}
+			}
+		}
 }
 
 

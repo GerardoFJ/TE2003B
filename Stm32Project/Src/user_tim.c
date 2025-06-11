@@ -14,6 +14,27 @@ void USER_TIM3_PWM_Init( void ){
 	GPIOB->OTYPER	&= ~( 0x1UL <<  4U );
 	GPIOB->MODER  &= ~( 0x1UL <<  8U );
 	GPIOB->MODER  |=  ( 0x2UL <<  8U );
+	/* STEP 0. Configure TIM3_CH1 (PB5) to output the PWM signal */
+	GPIOB->AFRL		&= ~( 0xEUL << 20U );
+	GPIOB->AFRL		|=  ( 0x1UL << 20U );
+	GPIOB->PUPDR  &= ~( 0x3UL <<  10U );
+	GPIOB->OTYPER	&= ~( 0x1UL <<  5U );
+	GPIOB->MODER  &= ~( 0x1UL <<  10U );
+	GPIOB->MODER  |=  ( 0x2UL <<  10U );
+
+	GPIOB->AFRL		&= ~( 0xEUL << 0U );
+		GPIOB->AFRL		|=  ( 0x1UL << 0U );
+		GPIOB->PUPDR  &= ~( 0x3UL <<  0U );
+		GPIOB->OTYPER	&= ~( 0x1UL <<  0U );
+		GPIOB->MODER  &= ~( 0x1UL <<  0U );
+		GPIOB->MODER  |=  ( 0x2UL <<  0U );
+
+		GPIOB->AFRL		&= ~( 0xEUL << 4U );
+			GPIOB->AFRL		|=  ( 0x1UL << 4U );
+			GPIOB->PUPDR  &= ~( 0x3UL <<  2U );
+			GPIOB->OTYPER	&= ~( 0x1UL <<  1U );
+			GPIOB->MODER  &= ~( 0x1UL <<  2U );
+			GPIOB->MODER  |=  ( 0x2UL <<  2U );
 
 	/* STEP 1. Configure the clock source (internal) */
 	TIM3->SMCR		&= ~( 0x1UL << 16U )
@@ -29,8 +50,13 @@ void USER_TIM3_PWM_Init( void ){
 	/* STEP 3. Configure the prescaler, the period and the duty cycle register values */
 	TIM3->PSC			 = 0U;
 	TIM3->ARR			 = 47999U;//	for 1 KHz frequency
-	TIM3->CCR1		 = USER_Duty_Cycle( 10 );//	for 25% of duty cycle
+	///////////////////////////////////////////////////////////////////////
+	TIM3->CCR1		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
+	TIM3->CCR2		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
+	TIM3->CCR3		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
+	TIM3->CCR4		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
 
+	///////////////////////////////////////////////////////////////////////
 	/* STEP 4. Configure the PWM mode, the compare register load and channel direction */
 	TIM3->CCMR1		&= ~( 0x1UL << 16U )
 								&  ~( 0x1UL <<  4U ) //		Selects PWM 1 mode
@@ -39,13 +65,59 @@ void USER_TIM3_PWM_Init( void ){
  	TIM3->CCMR1		|=  ( 0x6UL <<  4U ) //		Selects PWM 1 mode
 								|   ( 0x1UL <<  3U );//		CCR1 loads on the UEV event
 
+ 	///////////////////////////////////////////////////////////////////////
+
+ 	TIM3->CCMR1		&= ~( 0x1UL << 24U )
+ 									&  ~( 0x1UL <<  12U ) //		Selects PWM 1 mode
+ 									&  ~( 0x3UL <<  8U );//		Selects CH1 as output
+
+ 	 TIM3->CCMR1		|=  ( 0x6UL <<  12U ) //		Selects PWM 1 mode
+ 									|   ( 0x1UL <<  11U );//		CCR1 loads on the UEV event
+ 	///////////////////////////////////////////////////////////////////////
+
+
+ 	///////////////////////////////////////////////////////////////////////
+ 	/* STEP 4. Configure the PWM mode, the compare register load and channel direction */
+ 	TIM3->CCMR2		&= ~( 0x1UL << 16U )
+ 								&  ~( 0x1UL <<  4U ) //		Selects PWM 1 mode
+ 								&  ~( 0x3UL <<  0U );//		Selects CH1 as output
+
+  	TIM3->CCMR2		|=  ( 0x6UL <<  4U ) //		Selects PWM 1 mode
+ 								|   ( 0x1UL <<  3U );//		CCR1 loads on the UEV event
+
+  	///////////////////////////////////////////////////////////////////////
+
+  	TIM3->CCMR2		&= ~( 0x1UL << 24U )
+  									&  ~( 0x1UL <<  12U ) //		Selects PWM 1 mode
+  									&  ~( 0x3UL <<  8U );//		Selects CH1 as output
+
+  	 TIM3->CCMR2		|=  ( 0x6UL <<  12U ) //		Selects PWM 1 mode
+  									|   ( 0x1UL <<  11U );//		CCR1 loads on the UEV event
+  	///////////////////////////////////////////////////////////////////////
+
+
+
 	/* STEP 5. Generate the UEV-event to load the registers */
 	TIM3->EGR			|=  ( 0x1UL <<  0U );
 
+	///////////////////////////////////////////////////////////////////////
 	/* STEP 6. Enable the PWM signal output and set the polarity */
 	TIM3->CCER		&= ~( 0x1UL <<  3U ) //		for output mode, this bit must be cleared
 								&  ~( 0x1UL <<  1U );//		OC1 active high
 	TIM3->CCER		|=  ( 0x1UL <<  0U );//		OC1 signal is output on the corresponding pin
+	///////////////////////////////////////////////////////////////////////
+	TIM3->CCER		&= ~( 0x1UL <<  7U ) //		for output mode, this bit must be cleared
+								&  ~( 0x1UL <<  5U );//		OC1 active high
+	TIM3->CCER		|=  ( 0x1UL <<  4U );//		OC1 signal is output on the corresponding pin
+	///////////////////////////////////////////////////////////////////////
+	TIM3->CCER		&= ~( 0x1UL <<  11U ) //		for output mode, this bit must be cleared
+									&  ~( 0x1UL <<  9U );//		OC1 active high
+	TIM3->CCER		|=  ( 0x1UL <<  8U );//		OC1 signal is output on the corresponding pin
+	///////////////////////////////////////////////////////////////////////
+	TIM3->CCER		&= ~( 0x1UL <<  15U ) //		for output mode, this bit must be cleared
+										&  ~( 0x1UL <<  13U );//		OC1 active high
+	TIM3->CCER		|=  ( 0x1UL <<  12U );//		OC1 signal is output on the corresponding pin
+	///////////////////////////////////////////////////////////////////////
 
 	/* STEP 7. Enable the Timer to start counting */
 	TIM3->CR1			|=  ( 0x1UL <<  0U );
