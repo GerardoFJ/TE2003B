@@ -14,7 +14,7 @@
 #include "adclib.h"
 #include "lcd.h"
 
-#define configUSE_PREEMPTION  0
+#define configUSE_PREEMPTION  1
 
 #define BUFFER_SIZE 8
 
@@ -23,7 +23,7 @@ char buffer_vel[8];
 char buffer_rpm[8];
 char buffer_gear[8];
 // char test_buffer[] = "112.561";
-int velocity = 25;
+int velocity = 0;
 int index_k = 0;
 
 uint8_t button_status = 0;
@@ -57,9 +57,6 @@ int main(void)
 	xTaskCreate(StartTask3, "Task3", 128, NULL, 2, &Task3Handle);
 	xTaskCreate(StartTask4, "Task4", 128, NULL, 4, &Task4Handle);
 
-	/* Start the scheduler */
-//	printf("Heap Available: %u bytes\r\n", xPortGetFreeHeapSize());
-//	printf("Initializing Scheduler...\r\n");
 	vTaskStartScheduler();
 
 
@@ -75,7 +72,7 @@ void StartTask1(void *pvParameters) {
 
   /* Infinite loop */
   for(;;) {
-//	  printf("Task1, enter \r\n");
+
 	  val = USER_ADC_Read();
 	  if (GPIOA->IDR & (0x1UL << 7U))
 				{
@@ -85,16 +82,16 @@ void StartTask1(void *pvParameters) {
 				{
 					button_status = 0;
 				}
-	  vTaskDelay(5); //1
+	  vTaskDelay(6); //1
   }
 }
 
 void StartTask2(void *pvParameters) {
  //vTaskDelay(100);
-	vTaskDelay(10);
+	vTaskDelay(2);
   /* Infinite loop */
   for(;;) {
-//	  printf("Task2, enter \r\n");
+
 		LCD_Set_Cursor(1, 1);
 		LCD_Put_Str("Vel:       G:  ");
 		LCD_Set_Cursor(1, 5);
@@ -105,24 +102,23 @@ void StartTask2(void *pvParameters) {
 		LCD_Put_Str("RPM:       ");
 		LCD_Set_Cursor(2, 5);
 		LCD_Put_Str(buffer_rpm);
-		vTaskDelay(30); //3
+		vTaskDelay(6); //3
   }
 }
 
 void StartTask3(void *pvParameters) {
- //vTaskDelay(150);
-	vTaskDelay(2);
+
+	vTaskDelay(1);
   /* Infinite loop */
   for(;;) {
 	  printf("{adc: %u, button: %u}\n", val, button_status);
-	  vTaskDelay(50); //1
+	  vTaskDelay(6); //1
   }
 }
 
 void StartTask4(void *pvParameters) {
- //vTaskDelay(150);
   /* Infinite loop */
- vTaskDelay(1);
+ vTaskDelay(5);
   for(;;) {
 	  //printf("Task4, enter \r\n");
 	  if(velocity > 50 ){
@@ -132,7 +128,7 @@ void StartTask4(void *pvParameters) {
 	  		update_cycle(velocity,2);
 	  		update_cycle(velocity,3);
 	  		update_cycle(velocity,4);
-	  vTaskDelay(6); //1
+	  vTaskDelay(5); //1
   }
 }
 
