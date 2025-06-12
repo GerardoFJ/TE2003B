@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Power, Download, Settings, Gauge, Zap, Cog } from 'lucide-react';
+import Image from 'next/image';
 
 const TractorDashboard = () => {
   // State management
@@ -222,8 +223,14 @@ const TractorDashboard = () => {
         <div className="bg-gray-800 rounded-lg p-6 mb-6 shadow-2xl border border-gray-700">
           <div className="flex flex-col xl:flex-row justify-between items-center gap-4">
             <div className="flex items-center space-x-4">
-              <Cog className="w-8 h-8 text-green-400" />
-              <h1 className="text-3xl font-bold text-white">Tractor Dashboard</h1>
+              <Image
+  src="/John-Deere-Logo.png"
+  alt="Tractor Logo"
+  width={500}
+  height={312}
+  className="w-30 h-22"
+/>
+              <h1 className="text-3xl font-bold text-white">Jhon Deere Dashboard</h1>
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 backendConnected && isConnected ? 'bg-green-600' : 'bg-red-600'
               }`}>
