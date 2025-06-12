@@ -14,7 +14,6 @@
 #include "user_tim.h"
 #include "user_uart.h"
 #include "lcd.h"
-#include "systicklib.h"
 #include "adclib.h"
 #include <stdio.h>
 #include <string.h>
@@ -83,14 +82,10 @@ int main(void)
 //	USART_initialization();
 //	USER_ADC_Init();
 //	Lcd_initialization();
-//	update_cycle(25);
 
 	/* Repetitive block */
 	for (;;)
 	{
-//		Read_adc();
-//		Send_data();
-//		Show_data();
 
 	}
 }
@@ -176,10 +171,13 @@ void Show_data(){
 }
 
 void Set_pwm(){
-	if(velocity > 100){
-			velocity = 100;
+	if(velocity > 50 ){
+			velocity = 50;
 	}
-	update_cycle(velocity);
+	update_cycle(velocity,1);
+	update_cycle(velocity,2);
+	update_cycle(velocity,3);
+	update_cycle(velocity,4);
 }
 
 void Send_data(){

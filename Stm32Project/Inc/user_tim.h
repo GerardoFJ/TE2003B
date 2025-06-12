@@ -34,7 +34,7 @@ typedef struct
 #define TIM3    	(( TIM_TypeDef * )TIM3_BASE )
 
 void USER_TIM3_PWM_Init( void );
-void update_cycle(uint8_t duty);
+void update_cycle(uint8_t duty, uint8_t pin);
 uint16_t USER_Duty_Cycle( uint8_t duty );
 
 #endif /* USER_TIM_H_ */

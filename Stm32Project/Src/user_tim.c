@@ -51,10 +51,10 @@ void USER_TIM3_PWM_Init( void ){
 	TIM3->PSC			 = 0U;
 	TIM3->ARR			 = 47999U;//	for 1 KHz frequency
 	///////////////////////////////////////////////////////////////////////
-	TIM3->CCR1		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
-	TIM3->CCR2		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
-	TIM3->CCR3		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
-	TIM3->CCR4		 = USER_Duty_Cycle( 30 );//	for 25% of duty cycle
+	TIM3->CCR1		 = USER_Duty_Cycle( 0 );//	for 25% of duty cycle
+	TIM3->CCR2		 = USER_Duty_Cycle( 0 );//	for 25% of duty cycle
+	TIM3->CCR3		 = USER_Duty_Cycle( 0 );//	for 25% of duty cycle
+	TIM3->CCR4		 = USER_Duty_Cycle( 0 );//	for 25% of duty cycle
 
 	///////////////////////////////////////////////////////////////////////
 	/* STEP 4. Configure the PWM mode, the compare register load and channel direction */
@@ -123,9 +123,52 @@ void USER_TIM3_PWM_Init( void ){
 	TIM3->CR1			|=  ( 0x1UL <<  0U );
 }
 
-void update_cycle(uint8_t duty){
-	TIM3->CCR1		 = USER_Duty_Cycle( duty );//	for 25% of duty cycle
+void USER_TIM14_Init(void) {
+	RCC->APBENR2 |=  (0x1UL <<  15U);
+	TIM14->SMCR	 &= ~( 0x1UL << 16U)
+				 &  ~( 0x7UL << 0U);
+	TIM14->CR1	 &= ~( 0x1UL << 7U)
+				 &  ~( 0x3UL << 5U)
+				 &  ~( 0x1UL << 4U)
+				 &  ~( 0x1UL << 1U);
+}
 
+void USER_TIM14_Delay(uint16_t ms) {
+	TIM14->CR1 &= ~(1UL << 0);
+
+	TIM14->PSC = 4799;
+	TIM14->ARR = ms * 100;
+	TIM14->EGR |= (1UL << 0);
+
+	TIM14->SR &= ~(1UL << 0);
+
+	TIM14->CR1 |= (1UL << 0);
+
+	while (!(TIM14->SR & (1UL << 0)));
+
+	TIM14->CR1 &= ~(1UL << 0);
+	TIM14->SR &= ~(1UL << 0);
+}
+
+
+void update_cycle(uint8_t duty, uint8_t pin){
+	switch(pin){
+	case 1:
+		TIM3->CCR1		 = USER_Duty_Cycle( duty );//	for 25% of duty cycle
+		break;
+	case 2:
+		TIM3->CCR2		 = USER_Duty_Cycle( duty );//	for 25% of duty cycle
+		break;
+	case 3:
+		TIM3->CCR3		 = USER_Duty_Cycle( duty );//	for 25% of duty cycle
+		break;
+	case 4:
+			TIM3->CCR4		 = USER_Duty_Cycle( duty );//	for 25% of duty cycle
+			break;
+	default:
+	            break;
+
+	}
 }
 
 uint16_t USER_Duty_Cycle( uint8_t duty ){
