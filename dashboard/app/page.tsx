@@ -230,7 +230,7 @@ const TractorDashboard = () => {
   height={312}
   className="w-30 h-22"
 />
-              <h1 className="text-3xl font-bold text-white">Jhon Deere Dashboard</h1>
+              <h1 className="text-3xl font-bold text-white">John Deere Dashboard</h1>
               <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${
                 backendConnected && isConnected ? 'bg-green-600' : 'bg-red-600'
               }`}>

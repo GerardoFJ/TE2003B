@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jhon Deere Tractor",
-  description: "Jhon Deere vizualization dashboard",
+  title: "John Deere Tractor",
+  description: "John Deere vizualization dashboard",
 };
 
 export default function RootLayout({
