@@ -17,7 +17,7 @@ const TractorDashboard = () => {
   // WebSocket and API references
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
-  const API_BASE_URL = 'http://localhost:8000';
+  const API_BASE_URL = 'http://192.168.0.244:8000';
 
   // WebSocket connection and data fetching
   useEffect(() => {
@@ -37,7 +37,7 @@ const TractorDashboard = () => {
 
   const connectWebSocket = () => {
     try {
-      const ws = new WebSocket('ws://localhost:8000/ws');
+      const ws = new WebSocket('ws://192.168.0.244:8000/ws');
       wsRef.current = ws;
 
       ws.onopen = () => {
